@@ -189,57 +189,6 @@ records.post('/update-status', async (req, res) => {
     }
 });
 
-//working /create-entry route
-/* records.post('/create-entry', async (req, res) => {
-    const { email, lastTerm, lastGPA, currentTerm, selectedItems1, selectedItems2 } = req.body;
-
-    try {
-        // Start a transaction to ensure atomicity
-        await connection.beginTransaction();
-
-        // Insert a single record into 'records' table
-        const [result] = await connection.execute(
-            'INSERT INTO records (studentEmail, lastTerm, lastGPA, currentTerm) VALUES (?, ?, ?, ?)',
-            [email, lastTerm, lastGPA, currentTerm]
-        );
-
-        // Get the advisingID of the newly created record
-        const advisingID = result.insertId;
-
-        // Log selected items to check values (for debugging)
-        // console.log("Selected Courses (selectedItems2):", selectedItems2);
-        // console.log("Selected Prerequisites (selectedItems1):", selectedItems1);
-
-        // Insert selected courses into 'coursemapping' table
-        if (selectedItems2 && selectedItems2.length > 0) {
-            const courseMappingValues = selectedItems2.map(courseID => [advisingID, courseID]);
-            await connection.query(
-                'INSERT INTO coursemapping (advising_ID, course_ID) VALUES ?',
-                [courseMappingValues]
-            );
-        }
-
-        // Insert selected prerequisites into 'prereqmapping' table
-        if (selectedItems1 && selectedItems1.length > 0) {
-            const prereqMappingValues = selectedItems1.map(courseID => [advisingID, courseID]);
-            await connection.query(
-                'INSERT INTO prereqmapping (advising_ID, course_ID) VALUES ?',
-                [prereqMappingValues]
-            );
-        }
-
-        // Commit the transaction
-        await connection.commit();
-
-        res.status(201).json({ message: 'Entry created successfully' });
-    } catch (error) {
-        // Roll back the transaction in case of error
-        await connection.rollback();
-        console.error('Error creating entry:', error);
-        res.status(500).json({ message: 'Failed to create entry' });
-    }
-}); */
-
 records.post('/create-entry', async (req, res) => {
     const { email, lastTerm, lastGPA, currentTerm, selectedItems1, selectedItems2 } = req.body;
 
@@ -383,5 +332,55 @@ records.post('/create-entry', async (req, res) => {
     }
 });
 
+//working /create-entry route
+/* records.post('/create-entry', async (req, res) => {
+    const { email, lastTerm, lastGPA, currentTerm, selectedItems1, selectedItems2 } = req.body;
+
+    try {
+        // Start a transaction to ensure atomicity
+        await connection.beginTransaction();
+
+        // Insert a single record into 'records' table
+        const [result] = await connection.execute(
+            'INSERT INTO records (studentEmail, lastTerm, lastGPA, currentTerm) VALUES (?, ?, ?, ?)',
+            [email, lastTerm, lastGPA, currentTerm]
+        );
+
+        // Get the advisingID of the newly created record
+        const advisingID = result.insertId;
+
+        // Log selected items to check values (for debugging)
+        // console.log("Selected Courses (selectedItems2):", selectedItems2);
+        // console.log("Selected Prerequisites (selectedItems1):", selectedItems1);
+
+        // Insert selected courses into 'coursemapping' table
+        if (selectedItems2 && selectedItems2.length > 0) {
+            const courseMappingValues = selectedItems2.map(courseID => [advisingID, courseID]);
+            await connection.query(
+                'INSERT INTO coursemapping (advising_ID, course_ID) VALUES ?',
+                [courseMappingValues]
+            );
+        }
+
+        // Insert selected prerequisites into 'prereqmapping' table
+        if (selectedItems1 && selectedItems1.length > 0) {
+            const prereqMappingValues = selectedItems1.map(courseID => [advisingID, courseID]);
+            await connection.query(
+                'INSERT INTO prereqmapping (advising_ID, course_ID) VALUES ?',
+                [prereqMappingValues]
+            );
+        }
+
+        // Commit the transaction
+        await connection.commit();
+
+        res.status(201).json({ message: 'Entry created successfully' });
+    } catch (error) {
+        // Roll back the transaction in case of error
+        await connection.rollback();
+        console.error('Error creating entry:', error);
+        res.status(500).json({ message: 'Failed to create entry' });
+    }
+}); */
 
 export default records;

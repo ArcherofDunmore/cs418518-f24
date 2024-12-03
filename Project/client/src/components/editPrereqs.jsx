@@ -29,7 +29,7 @@ export default function CourseCatalog() {
                 const response = await fetch('http://localhost:8080/courses/list');
                 if (!response.ok) throw new Error('Failed to fetch courses');
                 const data = await response.json();
-                console.log("Data fetched:", data);
+                console.log("Data fetched:", data.data);
                 setCourses(data.data);
             } catch (error) {
                 console.error('Error fetching courses:', error);
@@ -142,9 +142,9 @@ export default function CourseCatalog() {
                     {courses.map((course) => (
                         <tr key={course.courseID}>
                             <td style={styles.td}>{course.courseID}</td>
-                            <td style={styles.td}>{course.courseLevel}</td>
-                            <td style={styles.td}>{course.courseCode}</td>
-                            <td style={styles.td}>{course.courseName}</td>
+                            <td style={styles.td}>{course.CourseLevel}</td>
+                            <td style={styles.td}>{course.CourseCode}</td>
+                            <td style={styles.td}>{course.CourseName}</td>
                             <td style={styles.td}>
                                 <label>
                                     <input

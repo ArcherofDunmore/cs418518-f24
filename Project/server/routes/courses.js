@@ -5,7 +5,7 @@ const courses = Router();
 
 courses.get('/list', async (req, res) => {
     try {
-        const [rows] = await connection.execute('SELECT courseID, CourseCode, CourseName FROM coursecatalog');
+        const [rows] = await connection.execute('SELECT courseID, CourseLevel, CourseCode, CourseName FROM coursecatalog');
         console.log('Fetched course rows:', rows);
         res.status(200).json({ data: rows });
     } catch (error) {
