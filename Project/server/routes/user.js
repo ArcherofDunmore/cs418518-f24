@@ -55,7 +55,7 @@ user.post("/", async (req, res) => {
     // Send verification email
     await SendMail(email, "Archer Advising Email Verification", `Please verify your account by clicking this link: ${verificationLink}`);
 
-    return res.status(200).json({ message: "Account created successfully, please verify account using email link" });
+    return res.status(201).json({ message: "Account created successfully, please verify account using email link" });
   } catch (error) {
     console.error("Error creating account:", error);
     return res.status(500).json({ message: "Server error" });
@@ -106,64 +106,89 @@ user.get("/verify", async (req, res) => {
   }
 });
 
+user.put("/:email", (req, res) => {
+  const { firstName, lastName } = req.body;
+  const email = req.params.email;
 
+  if (!firstName || !lastName || !email) {
+    return res.status(400).json({ message: "Missing required fields" });
+  }
 
-user.delete("/:id", (req, res) => {
   connection.execute(
-    "delete from userdata where id=?",
-    [req.params.id],
-    function (err, result) {
+    "UPDATE userdata SET First_Name=?, Last_Name=? WHERE Email=?",
+    [firstName, lastName, email],
+    (err, result) => {
       if (err) {
-        res.json(err.message);
-      } else {
-        res.json({
-          status: 200,
-          message: "Response from DELETE API, attempting user delete",
-          data: result,
-        });
+        return res.status(500).json({ message: err.message });
       }
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ message: `User ${email} not found` });
+      }
+
+      res.status(200).json({
+        message: `User ${email} updated successfully`,
+        data: result,
+      });
     }
   );
 });
 
 
-user.put("/:id", (req, res) => {
+user.delete("/:email", (req, res) => {
+  const email = req.params.email;
+
+  if (!email) {
+    return res.status(400).json({ message: "Email parameter is required" });
+  }
+
   connection.execute(
-    "update userdata set First_Name=? , Last_Name=? where id=?",
-    [req.body.firstName,
-    req.body.lastName,
-    req.params.id],
-    function (err, result) {
+    "DELETE FROM userdata WHERE Email=?",
+    [email],
+    (err, result) => {
       if (err) {
-        res.json(err.message);
-      } else {
-        res.json({
-          status: 200,
-          message: "Response from user delete api",
-          data: result,
-        });
+        return res.status(500).json({ message: err.message });
       }
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ message: `User ${email} not found` });
+      }
+
+      res.status(200).json({
+        message: `User ${email} deleted successfully`,
+      });
     }
   );
 });
 
-user.get("/:id", (req, res) => {
+
+user.get("/:email", (req, res) => {
+  const email = req.params.email;
+
+  if (!email) {
+    return res.status(400).json({ message: "Email parameter is required" });
+  }
+
   connection.execute(
-    "select * from userdata where id=?",
-    [req.params.id],
-    function (err, result) {
+    "SELECT * FROM userdata WHERE Email=?",
+    [email],
+    (err, result) => {
       if (err) {
-        res.json(err.message);
-      } else {
-        res.json({
-          status: 200,
-          message: "Response from user get api",
-          data: result,
-        });
+        return res.status(500).json({ message: "Error retrieving user data", error: err.message });
       }
+
+      if (result.length === 0) {
+        return res.status(404).json({ message: `User ${email} not found` });
+      }
+
+      res.status(200).json({
+        message: `User ${email} found successfully`,
+        data: result[0], // Assuming only one user is retrieved
+      });
     }
   );
 });
+
 
 user.post("/login", async (req, res) => {
   try {
@@ -176,7 +201,7 @@ user.post("/login", async (req, res) => {
     // Step 2: Check if user exists
     if (rows.length === 0) {
       console.log("User not found for email:", req.body.email);
-      return res.status(401).json({ message: "Invalid credentials" });
+      return res.status(404).json({ message: "Invalid email" });
     }
 
     const user = rows[0];

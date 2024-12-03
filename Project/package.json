@@ -4,7 +4,8 @@
     "scripts": {
         "install": "cd server && npm install && cd ../client && npm install",
         "build": "cd client && npm run build",
-        "dev": "concurrently \"cd server && node app.js\" \"cd client && npm run dev\""
+        "dev": "concurrently \"cd server && node app.js\" \"cd client && npm run dev\"",
+        "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js"
     },
     "dependencies": {
         "concurrently": "^7.0.0"
