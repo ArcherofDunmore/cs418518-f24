@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { useNavigate } from "react-router-dom";
+import ReCAPTCHA from "react-google-recaptcha";
 
 
 export default function Login() {
@@ -10,10 +11,21 @@ export default function Login() {
     const [submitted, setSubmitted] = useState(false);
     const [Code2FA, setCode2FA] = useState("");
     const [is2FARequired, setIs2FARequired] = useState(false);
+    const [captchaVerified, setCaptchaVerified] = useState(false);
     const [errorMessage, setErrorMessage] = useState(''); // For error messages
     const [userStateVal, setUserStateVal] = useState(true);
     const navigate = useNavigate();
     // const [message, setMessage] = useState("");
+
+    const RECAPTCHA_SITE_KEY = "6LcQc5EqAAAAAAy3OJMyVfZkpEckSkoDpdirkqE6";
+
+    const handleCaptchaChange = (value) => {
+        if (value) {
+            setCaptchaVerified(true);
+        } else {
+            setCaptchaVerified(false);
+        }
+    };
 
     useEffect(() => {
         // Check if the page is being loaded in an iframe
@@ -41,6 +53,11 @@ export default function Login() {
     const handleLogin = async (event) => {
         event.preventDefault();
         setSubmitted(true);
+
+        if (!captchaVerified) {
+            setErrorMessage("Please complete the reCAPTCHA.");
+            return;
+        }
 
         try {
             const formBody = JSON.stringify({
@@ -169,6 +186,12 @@ export default function Login() {
                             style={styles.input}
                         />
 
+                        <ReCAPTCHA
+                            sitekey={RECAPTCHA_SITE_KEY}
+                            onChange={handleCaptchaChange}
+                            style={{ marginBottom: "10px" }}
+                        />
+
                         {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
 
                         <div className="actions" style={styles.actions}>
@@ -226,7 +249,7 @@ const styles = {
         padding: "30px",
         borderRadius: "8px",
         boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-        width: "300px",
+        width: "400px",
         margin: "auto",
         marginTop: "50px",
     },
